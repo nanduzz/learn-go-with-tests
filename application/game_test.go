@@ -23,7 +23,7 @@ func TestGame(t *testing.T) {
 		t.Errorf("got %q, want %q", gotPrompt, wantPrompt)
 	}
 
-	if game.StartedWith != 7 {
-		t.Errorf("wanted Start called with 7 but got %d", game.StartedWith)
+	if game.StartCalledWith != 7 {
+		t.Errorf("wanted Start called with 7 but got %d", game.StartCalledWith)
 	}
 }

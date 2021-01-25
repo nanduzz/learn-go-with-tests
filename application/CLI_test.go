@@ -3,6 +3,7 @@ package poker_test
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"testing"
 	"time"
@@ -22,7 +23,7 @@ func TestCli(t *testing.T) {
 		in := strings.NewReader("0\nChris\n")
 		playerStore := &poker.StubPlayerStore{}
 
-		game := poker.NewGame(dummyBlindAlerter, playerStore)
+		game := poker.NewTexasHoldem(dummyBlindAlerter, playerStore)
 
 		cli := poker.NewCLI(in, dummyStdOut, game)
 		cli.PlayPoker()
@@ -34,7 +35,7 @@ func TestCli(t *testing.T) {
 		in := strings.NewReader("0\nCleo\n")
 		playerStore := &poker.StubPlayerStore{}
 
-		game := poker.NewGame(dummySpyAlerter, playerStore)
+		game := poker.NewTexasHoldem(dummySpyAlerter, playerStore)
 
 		cli := poker.NewCLI(in, dummyStdOut, game)
 		cli.PlayPoker()
@@ -47,7 +48,7 @@ func TestCli(t *testing.T) {
 		playerStore := &poker.StubPlayerStore{}
 		blindAlerter := &poker.SpyBlindAlerter{}
 
-		game := poker.NewGame(blindAlerter, playerStore)
+		game := poker.NewTexasHoldem(blindAlerter, playerStore)
 
 		cli := poker.NewCLI(in, dummyStdOut, game)
 		cli.PlayPoker()
@@ -75,7 +76,7 @@ func TestCli(t *testing.T) {
 		in := strings.NewReader("7\n")
 		blindAlerter := &poker.SpyBlindAlerter{}
 
-		game := poker.NewGame(blindAlerter, dummyPlayerStore)
+		game := poker.NewTexasHoldem(blindAlerter, dummyPlayerStore)
 		cli := poker.NewCLI(in, stdout, game)
 
 		cli.PlayPoker()
@@ -116,15 +117,14 @@ func TestCli(t *testing.T) {
 			t.Errorf("game should not have started")
 		}
 	})
-
 }
 
 func TestGame_Start(t *testing.T) {
 	t.Run("schedules alerts on game start for 5 players", func(t *testing.T) {
 		blindAlerter := &poker.SpyBlindAlerter{}
-		game := poker.NewGame(blindAlerter, dummyPlayerStore)
+		game := poker.NewTexasHoldem(blindAlerter, dummyPlayerStore)
 
-		game.Start(5)
+		game.Start(5, ioutil.Discard)
 
 		cases := []poker.ScheduledAlert{
 			{At: 0 * time.Second, Amount: 100},
@@ -145,9 +145,9 @@ func TestGame_Start(t *testing.T) {
 
 	t.Run("schedules alerts on game start for 7 players", func(t *testing.T) {
 		blindAlerter := &poker.SpyBlindAlerter{}
-		game := poker.NewGame(blindAlerter, dummyPlayerStore)
+		game := poker.NewTexasHoldem(blindAlerter, dummyPlayerStore)
 
-		game.Start(7)
+		game.Start(7, ioutil.Discard)
 
 		cases := []poker.ScheduledAlert{
 			{At: 0 * time.Second, Amount: 100},
@@ -163,7 +163,7 @@ func TestGame_Start(t *testing.T) {
 
 func TestGame_Finish(t *testing.T) {
 	store := &poker.StubPlayerStore{}
-	game := poker.NewGame(dummyBlindAlerter, store)
+	game := poker.NewTexasHoldem(dummyBlindAlerter, store)
 	winner := "Ruth"
 
 	game.Finish(winner)
@@ -181,14 +181,5 @@ func checkSchedulingCases(cases []poker.ScheduledAlert, t *testing.T, blindAlert
 
 		got := blindAlerter.Alerts[i]
 		poker.AssertScheduledAlerts(t, got, want)
-	}
-}
-
-func assertMessagesSentToUser(t testing.TB, stdout *bytes.Buffer, messages ...string) {
-	t.Helper()
-	want := strings.Join(messages, "")
-	got := stdout.String()
-	if got != want {
-		t.Errorf("got %q sent to stdout but expected %+v", got, messages)
 	}
 }
