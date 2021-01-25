@@ -19,7 +19,7 @@ var dummySpyAlerter = &poker.SpyBlindAlerter{}
 func TestCli(t *testing.T) {
 
 	t.Run("record Chris win from user input", func(t *testing.T) {
-		in := strings.NewReader("\nChris\n")
+		in := strings.NewReader("0\nChris\n")
 		playerStore := &poker.StubPlayerStore{}
 
 		game := poker.NewGame(dummyBlindAlerter, playerStore)
@@ -31,7 +31,7 @@ func TestCli(t *testing.T) {
 	})
 
 	t.Run("record Cleo win from user input", func(t *testing.T) {
-		in := strings.NewReader("\nCleo\n")
+		in := strings.NewReader("0\nCleo\n")
 		playerStore := &poker.StubPlayerStore{}
 
 		game := poker.NewGame(dummySpyAlerter, playerStore)
@@ -43,7 +43,7 @@ func TestCli(t *testing.T) {
 	})
 
 	t.Run("it schedules printing of blind values", func(t *testing.T) {
-		in := strings.NewReader("Chris wins\n")
+		in := strings.NewReader("0\nChris wins\n")
 		playerStore := &poker.StubPlayerStore{}
 		blindAlerter := &poker.SpyBlindAlerter{}
 
